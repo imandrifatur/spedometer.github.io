@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speedometer Digital dengan Lokasi dan Alamat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #222;
+            color: #fff;
+            text-align: center;
+        }
+        .speedometer {
+            background: #333;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            width: 300px;
+        }
+        .speed-display {
+            font-size: 48px;
+            font-weight: bold;
+            color: #00ff00;
+        }
+        .status, .location {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #ccc;
+        }
+        .address {
+            margin-top: 5px;
+            font-size: 16px;
+            color: #fff;
+        }
+        /* Responsif */
+        @media (max-width: 400px) {
+            .speed-display {
+                font-size: 36px;
+            }
+            .status, .location, .address {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="speedometer">
+    <div class="speed-display" id="speedDisplay">0 km/h</div>
+    <div class="status" id="status">Mengambil data GPS...</div>
+    <div class="location" id="location">Lokasi: N/A</div>
+    <div class="address" id="address">Alamat: N/A</div>
+</div>
+
+<script>
+    const speedDisplay = document.getElementById('speedDisplay');
+    const statusDisplay = document.getElementById('status');
+    const locationDisplay = document.getElementById('location');
+    const addressDisplay = document.getElementById('address');
+
+    // Fungsi untuk memperbarui tampilan kecepatan
+    function updateSpeedometer(speed) {
+        speedDisplay.textContent = `${speed.toFixed(1)} km/h`;
+    }
+
+    // Fungsi untuk memperbarui tampilan lokasi
+    function updateLocation(lat, lon) {
+        locationDisplay.textContent = `Lokasi: ${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+        getAddress(lat, lon); // Mendapatkan alamat dari koordinat
+    }
+
+    // Fungsi untuk mendapatkan alamat berdasarkan koordinat
+    function getAddress(lat, lon) {
+        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.display_name) {
+                    addressDisplay.textContent = `Alamat: ${data.display_name}`;
+                } else {
+                    addressDisplay.textContent = 'Alamat: Tidak ditemukan';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching address:', error);
+                addressDisplay.textContent = 'Alamat: Gagal mendapatkan alamat';
+            });
+    }
+
+    // Fungsi untuk mendapatkan lokasi dan kecepatan pengguna
+    function startTracking() {
+        if ('geolocation' in navigator) {
+            navigator.geolocation.watchPosition(
+                (position) => {
+                    const speed = position.coords.speed || 0;
+                    const speedKmh = speed * 3.6; // Konversi m/s ke km/h
+                    const limitedSpeed = Math.min(speedKmh, 200); // Batas maksimum 200 km/h
+                    updateSpeedometer(limitedSpeed);
+                    updateLocation(position.coords.latitude, position.coords.longitude);
+                    statusDisplay.textContent = "Kecepatan diukur dari GPS";
+                },
+                (error) => {
+                    statusDisplay.textContent = `Error: ${error.message}`;
+                },
+                {
+                    enableHighAccuracy: true,
+                    maximumAge: 1000,
+                    timeout: 5000,
+                }
+            );
+        } else {
+            statusDisplay.textContent = "Geolocation tidak didukung di perangkat ini";
+        }
+    }
+
+    // Memulai pengukuran kecepatan
+    startTracking();
+</script>
+
+</body>
+</html>
