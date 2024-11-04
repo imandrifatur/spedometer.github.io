@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speedometer Digital dengan Lokasi dan Alamat</title>
+    <title>Speedometer Digital</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -38,12 +38,17 @@
             font-size: 16px;
             color: #fff;
         }
+        .copyright {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #aaa;
+        }
         /* Responsif */
         @media (max-width: 400px) {
             .speed-display {
                 font-size: 36px;
             }
-            .status, .location, .address {
+            .status, .location, .address, .copyright {
                 font-size: 14px;
             }
         }
@@ -56,6 +61,7 @@
     <div class="status" id="status">Mengambil data GPS...</div>
     <div class="location" id="location">Lokasi: N/A</div>
     <div class="address" id="address">Alamat: N/A</div>
+    <div class="copyright">© imandrifatur2024</div>
 </div>
 
 <script>
